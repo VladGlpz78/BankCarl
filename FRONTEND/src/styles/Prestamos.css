@@ -1,0 +1,27 @@
+/* Podés reutilizar las clases de Clientes si querés, pero tenerlo separado te permite personalizarlo a futuro */
+.prestamo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+select.form-input {
+  cursor: pointer;
+  background-color: white;
+  color: #333; /* 👈 Esta es la línea mágica que hace aparecer el texto */
+}
+
+select.form-input:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 5px rgba(40,167,69,0.3);
+}
+
+/* Cambiamos el color del botón para diferenciarlo del de clientes */
+.prestamo-form .btn-submit {
+  background-color: #28a745;
+}
+
+.prestamo-form .btn-submit:hover {
+  background-color: #218838;
+}

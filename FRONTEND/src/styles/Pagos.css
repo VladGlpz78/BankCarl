@@ -1,0 +1,98 @@
+.pagos-container {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: sans-serif;
+  background-color: #f9f9f9;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.mensaje-limpio {
+  color: #28a745;
+  font-weight: bold;
+  text-align: center;
+  padding: 20px;
+  border: 1px dashed #28a745;
+  border-radius: 8px;
+}
+
+.cuotas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.cuota-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 5px solid #ffc107; /* Amarillito para pendientes */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cuota-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cuota-monto {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.cuota-vencimiento {
+  font-size: 13px;
+  color: #666;
+}
+
+.btn-pagar {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn-pagar:hover {
+  background-color: #0056b3;
+}
+
+/* --- ESTILOS PARA CUOTAS VENCIDAS --- */
+.cuota-card.vencida {
+  border-left: 5px solid #dc3545; /* Línea roja gruesa */
+  background-color: #fff8f8; /* Fondo un poco rojizo */
+}
+
+.badge-vencida {
+  background-color: #dc3545;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 10px;
+  text-transform: uppercase;
+}
+
+.texto-rojo {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.btn-rojo {
+  background-color: #dc3545;
+}
+
+.btn-rojo:hover {
+  background-color: #c82333;
+}

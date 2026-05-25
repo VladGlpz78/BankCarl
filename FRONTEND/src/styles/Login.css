@@ -1,0 +1,105 @@
+/* --- FONDO DEL LOGIN --- */
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Azul muy oscuro tipo búnker */
+  position: absolute; /* Para que pise cualquier otro margen */
+  top: 0;
+  left: 0;
+}
+
+/* --- LA TARJETA CENTRAL --- */
+.login-card {
+  background-color: white;
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h2 {
+  margin: 15px 0 5px 0;
+  color: #1e293b;
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+.login-header p {
+  color: #64748b;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* --- MENSAJE DE ERROR --- */
+.login-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  border: 1px solid #f87171;
+}
+
+/* --- FORMULARIO --- */
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  font-size: 13px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.login-form .form-input {
+  padding: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.login-form .form-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+  background-color: white;
+}
+
+.login-btn {
+  background-color: #0ea5e9;
+  padding: 14px;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2);
+}
+
+.login-btn:hover {
+  background-color: #0284c7;
+  transform: translateY(-1px);
+}
+
+/* --- FOOTER LEGAL --- */
+.login-footer {
+  margin-top: 25px;
+  text-align: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 15px;
+}
+
+.login-footer p {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}

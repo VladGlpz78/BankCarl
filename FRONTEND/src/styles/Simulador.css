@@ -1,0 +1,88 @@
+.simulador-container {
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.simulador-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.simulador-header h2 {
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.simulador-header p {
+  color: #666;
+  font-size: 14px;
+}
+
+.simulador-resultado {
+  margin-top: 30px;
+  padding-top: 25px;
+  border-top: 2px dashed #ccc;
+  text-align: center;
+}
+
+.simulador-resultado h3 {
+  color: #28a745;
+  margin-bottom: 20px;
+}
+
+.resultado-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.resultado-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.resultado-item.destacado {
+  background-color: #e6f5e6;
+  border-color: #28a745;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.resultado-item.destacado span {
+  font-size: 14px;
+  color: #555;
+}
+
+.resultado-item.destacado h4 {
+  font-size: 28px;
+  margin: 0;
+  color: #28a745;
+}
+
+.btn-secundario {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ccc;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.btn-secundario:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}

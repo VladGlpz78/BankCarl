@@ -1,0 +1,88 @@
+/* --- src/index.css --- */
+:root {
+  --primary-color: #007BFF;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --bg-color: #f4f6f8;
+  --text-color: #333;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+/* --- CLASES GENÉRICAS PARA FORMULARIOS --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: #444;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 14px;
+  color: #333;
+  background-color: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* --- CLASES GENÉRICAS PARA BOTONES --- */
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-submit:hover {
+  background-color: #0056b3;
+}
+
+/* --- LAYOUT PRINCIPAL DE LA APP --- */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  margin-left: 250px; /* Deja espacio para el menú lateral en PC */
+}
+
+/* Responsive para celulares: El menú se va abajo, el contenido ocupa todo */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  .main-content {
+    margin-left: 0;
+    margin-bottom: 70px; /* Deja espacio para la barra inferior en celu */
+  }
+}
