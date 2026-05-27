@@ -80,20 +80,22 @@ const registrarPago = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN 3: HISTORIAL DE CAJA PARA EL FRONTEND ---
 const obtenerHistorialCaja = async (req, res) => {
     try {
         const { data, error } = await supabase
-            .from('pagos')
+            .from('prestamos')
             .select(`
                 id,
-                monto_pagado,
-                fecha_pago,
-                observaciones,
-                cuota_id,
-                prestamos ( cliente_id, clientes ( id, nombre, apellido, calificacion, dni ) )
+                monto_capital,
+                monto_total,
+                estado,
+                fecha_inicio,
+                fecha_fin,
+                clientes ( id, nombre, apellido, calificacion ),
+                cuotas ( id, numero_cuota, monto_cuota, estado, fecha_vencimiento ),
+                pagos ( id, monto_pagado, fecha_pago, observaciones )
             `)
-            .order('fecha_pago', { ascending: false });
+            .order('fecha_inicio', { ascending: false });
 
         if (error) {
             console.error(error);
@@ -103,7 +105,7 @@ const obtenerHistorialCaja = async (req, res) => {
         res.status(200).json({ éxito: true, historial: data });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ éxito: false, error: 'Error interno del servidor' });
+        res.status(500).json({ éxito: false, error: 'Error interno' });
     }
 };
 

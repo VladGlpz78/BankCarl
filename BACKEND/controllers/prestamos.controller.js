@@ -105,4 +105,24 @@ const crearPrestamo = async (req, res) => {
     }
 };
 
-module.exports = { crearPrestamo };
+const eliminarPrestamo = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const { error } = await supabase
+            .from('prestamos')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            return res.status(400).json({ éxito: false, error: error.message });
+        }
+
+        res.status(200).json({ éxito: true, mensaje: 'Préstamo e historial eliminados correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ éxito: false, error: 'Error interno del servidor' });
+    }
+};
+
+module.exports = { crearPrestamo, eliminarPrestamo };

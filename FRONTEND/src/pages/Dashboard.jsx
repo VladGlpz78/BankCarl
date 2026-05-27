@@ -6,13 +6,22 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ plata_en_la_calle: 0, clientes_activos: 0, cuotas_vencidas: 0 });
   const [clientes, setClientes] = useState([]);
   
-  // 👇 NUEVOS ESTADOS PARA LOS MOROSOS
+  // ESTADOS PARA LOS MOROSOS
   const [morosos, setMorosos] = useState([]);
   const [mostrarModalMorosos, setMostrarModalMorosos] = useState(false);
   
   const [cargando, setCargando] = useState(true);
   const [editandoId, setEditandoId] = useState(null);
   const [editFormData, setEditFormData] = useState({ nombre: '', apellido: '', dni: '' });
+    
+  // Función para calcular hace cuántos días venció
+  const calcularDiasAtraso = (fechaVencimiento) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const vencimiento = new Date(fechaVencimiento + 'T00:00:00');
+    const diferenciaTiempo = Math.abs(hoy - vencimiento);
+    return Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24));
+  };
 
   const token = localStorage.getItem('auth_token');
 
@@ -24,7 +33,7 @@ const Dashboard = () => {
       const dataStats = await resStats.json();
       if (dataStats.éxito) {
         setStats(dataStats.stats);
-        setMorosos(dataStats.morosos); // 👈 Guardamos la lista de morosos
+        setMorosos(dataStats.morosos); // Guardamos la lista de morosos
       }
 
       const resClientes = await fetch('http://localhost:3000/api/clientes', {
@@ -101,7 +110,7 @@ const Dashboard = () => {
               <p>Clientes Registrados</p>
             </div>
 
-            {/* 👇 TARJETA DE MOROSOS CLIQUEABLE */}
+            {/* TARJETA DE MOROSOS CLIQUEABLE */}
             <div 
               className={`card ${stats.cuotas_vencidas > 0 ? 'alerta-morosos card-cliqueable' : ''}`}
               onClick={() => stats.cuotas_vencidas > 0 && setMostrarModalMorosos(true)}
@@ -110,30 +119,35 @@ const Dashboard = () => {
               <AlertCircle size={24} color={stats.cuotas_vencidas > 0 ? "red" : "gray"} />
               <h3 style={{ color: stats.cuotas_vencidas > 0 ? 'red' : 'inherit' }}>{stats.cuotas_vencidas}</h3>
               <p>Cuotas Vencidas</p>
-              {stats.cuotas_vencidas > 0 && <small className="click-hint">Ver lista 👆</small>}
+              {stats.cuotas_vencidas > 0 && <small className="click-hint">Ver lista </small>}
             </div>
           </div>
 
-          {/* 👇 EL MODAL (VENTANITA) DE MOROSOS */}
           {mostrarModalMorosos && (
             <div className="modal-overlay">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h3>🚨 Clientes con cuotas atrasadas</h3>
+                  <h3> Clientes con cuotas atrasadas</h3>
                   <button className="btn-cerrar-modal" onClick={() => setMostrarModalMorosos(false)}><X size={20}/></button>
                 </div>
+              
                 <div className="lista-morosos">
                   {morosos.map((moroso) => {
-                    const cliente = moroso.prestamos.clientes;
+                    const cliente = moroso.prestamos?.clientes;
                     return (
                       <div key={moroso.id} className="moroso-item">
                         <div className="moroso-info">
-                          <strong>{cliente.apellido}, {cliente.nombre}</strong>
-                          <span className="moroso-detalle">Cuota {moroso.numero_cuota} - Venció el {moroso.fecha_vencimiento.split('-').reverse().join('/')}</span>
+                          <strong>{cliente?.apellido}, {cliente?.nombre}</strong>
+                          <span className="moroso-detalle">
+                            Cuota {moroso.numero_cuota} - Venció el {moroso.fecha_vencimiento.split('-').reverse().join('/')}
+                          </span>
+                          <span style={{ color: '#dc2626', fontSize: '13px', fontWeight: 'bold', marginTop: '4px' }}>
+                            ¡Atrasada hace {calcularDiasAtraso(moroso.fecha_vencimiento)} días!
+                          </span>
                         </div>
                         <div className="moroso-accion">
                           <span className="moroso-monto">${moroso.monto_cuota}</span>
-                          {cliente.telefono && (
+                          {cliente?.telefono && (
                             <a href={`https://wa.me/${cliente.telefono.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="btn-whatsapp" title="Mandar WhatsApp">
                               <Phone size={16} />
                             </a>
@@ -143,6 +157,7 @@ const Dashboard = () => {
                     )
                   })}
                 </div>
+
               </div>
             </div>
           )}

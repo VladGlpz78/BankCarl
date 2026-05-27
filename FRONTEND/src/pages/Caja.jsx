@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Archive, Star, MessageSquare } from 'lucide-react';
+import { Archive, Calendar, MessageSquare, CreditCard, Trash2 } from 'lucide-react';
 import '../styles/Caja.css';
 
 const Caja = () => {
@@ -8,84 +8,160 @@ const Caja = () => {
 
   const token = localStorage.getItem('auth_token');
 
-  useEffect(() => {
-    const cargarHistorial = async () => {
-      try {
-        const res = await fetch('http://localhost:3000/api/pagos/historial', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (data.éxito) setHistorial(data.historial);
-      } catch (error) {
-        console.error('Error al cargar la caja', error);
-      } finally {
-        setCargando(false);
+  const cargarHistorial = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/pagos/historial', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.éxito && Array.isArray(data.historial)) {
+        setHistorial(data.historial);
       }
-    };
+    } catch (error) {
+      console.error('Error al cargar la caja', error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  useEffect(() => {
     cargarHistorial();
   }, [token]);
 
-  // Función para dibujar las estrellitas amarillas según la calificación
-  const renderEstrellas = (calificacion) => {
-    return [...Array(5)].map((_, index) => (
-      <Star 
-        key={index} 
-        size={16} 
-        fill={index < calificacion ? "#fbbf24" : "none"} 
-        color={index < calificacion ? "#fbbf24" : "#cbd5e1"} 
-      />
-    ));
+  // --- 👇 FUNCIÓN NUEVA: BORRAR PRÉSTAMO E HISTORIAL DE CAJA ---
+  const handleEliminarPrestamo = async (id, apellido, nombre) => {
+    const confirmar = window.confirm(
+      `⚠️ ¡ALERTA MÁXIMA! ⚠️\n\n¿Seguro que querés borrar por completo el préstamo de ${apellido}, ${nombre}?\n\nEsto eliminará permanentemente el préstamo, todas sus cuotas y todo su historial de cobros de la caja. Esta acción NO se puede deshacer.`
+    );
+    
+    if (!confirmar) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/prestamos/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      
+      if (data.éxito) {
+        alert('Préstamo e historial eliminados correctamente del sistema.');
+        // Filtramos el estado local para que la tarjeta desaparezca de la pantalla al instante
+        setHistorial(historial.filter(p => p.id !== id));
+      } else {
+        alert('Error al eliminar: ' + data.error);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error de conexión con el servidor.');
+    }
   };
 
-  // Sumamos toda la plata que entró para tener el total de la caja
-  const totalCaja = historial.reduce((total, pago) => total + parseFloat(pago.monto_pagado), 0);
+  const totalCaja = historial.reduce((totalAcumulado, prestamo) => {
+    const pagosSeguros = prestamo.pagos || [];
+    const pagosDelPrestamo = pagosSeguros.reduce((sumaPagos, pago) => sumaPagos + parseFloat(pago.monto_pagado || 0), 0);
+    return totalAcumulado + pagosDelPrestamo;
+  }, 0);
+
+  const formatearFecha = (fechaStr) => {
+    if (!fechaStr) return '---';
+    return fechaStr.split('-').reverse().join('/');
+  };
 
   return (
     <div className="caja-container">
       <div className="caja-header">
-        <h2><Archive size={28} color="#10b981" /> Historial de Caja</h2>
+        <h2><Archive size={28} color="#10b981" /> Estado de Préstamos</h2>
         <div className="caja-total">
-          <span>Ingresos Totales:</span>
+          <span>Ingresos Totales en Caja:</span>
           <strong>$ {totalCaja.toLocaleString('es-AR')}</strong>
         </div>
       </div>
 
       {cargando ? (
-        <p>Cargando movimientos...</p>
+        <p>Cargando registros...</p>
       ) : historial.length === 0 ? (
-        <p>Todavía no hay cobros registrados.</p>
+        <p>No hay préstamos registrados.</p>
       ) : (
         <div className="historial-lista">
-          {historial.map((pago) => {
-            // Extraemos los datos del cliente que nos trajo el JOIN de Supabase
-            const cliente = pago.prestamos?.clientes;
+          {historial.map((prestamo) => {
+            const cliente = prestamo.clientes || { nombre: 'Cliente', apellido: 'Desconocido' };
+            const cuotasSeguras = prestamo.cuotas || [];
+            const pagosSeguros = prestamo.pagos || [];
+            
+            const cuotasOrdenadas = [...cuotasSeguras].sort((a, b) => a.numero_cuota - b.numero_cuota);
 
             return (
-              <div key={pago.id} className="pago-card">
-                <div className="pago-principal">
-                  <div className="pago-cliente-info">
-                    <strong>{cliente?.apellido}, {cliente?.nombre}</strong>
-                    <div className="estrellas-container">
-                      {renderEstrellas(cliente?.calificacion || 5)}
-                    </div>
+              <div key={prestamo.id} className="prestamo-card">
+                
+                {/* CABECERA DE LA TARJETA */}
+                <div className="prestamo-card-header">
+                  <div className="cliente-info">
+                    <strong>{cliente.apellido}, {cliente.nombre}</strong>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+                      <Calendar size={14} /> 
+                      Plazo: {formatearFecha(prestamo.fecha_inicio)} al {formatearFecha(prestamo.fecha_fin)}
+                    </span>
                   </div>
-                  <div className="pago-monto">
-                    + $ {pago.monto_pagado}
+                  <div className="prestamo-datos-rapidos">
+                    {/* Aliné el badge y el tacho en una fila horizontal prolija */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span className={`badge-estado ${(prestamo.estado || 'activo').toLowerCase()}`}>{prestamo.estado || 'Activo'}</span>
+                      
+                      {/* 👇 EL TACHO DE BASURA INTELIGENTE */}
+                      <button 
+                        onClick={() => handleEliminarPrestamo(prestamo.id, cliente.apellido, cliente.nombre)}
+                        style={{ 
+                          background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', 
+                          padding: '6px', borderRadius: '6px', display: 'flex', alignItems: 'center', 
+                          justifyContent: 'center', transition: 'all 0.2s' 
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        title="Eliminar este préstamo e historial"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                    <span className="monto-total" style={{ marginTop: '5px' }}>A devolver: ${prestamo.monto_total || 0}</span>
                   </div>
                 </div>
 
-                <div className="pago-detalles">
-                  <span className="pago-fecha">
-                    🗓️ {new Date(pago.fecha_pago).toLocaleDateString('es-AR', { hour: '2-digit', minute:'2-digit' })}
-                  </span>
-                  
-                  {pago.observaciones && (
-                    <div className="pago-observacion">
-                      <MessageSquare size={14} />
-                      <i>{pago.observaciones}</i>
+                {/* GRILLA DE CUOTAS */}
+                {cuotasOrdenadas.length > 0 && (
+                  <div className="cuotas-seccion">
+                    <h4><CreditCard size={16}/> Estado de las Cuotas</h4>
+                    <div className="cuotas-grid">
+                      {cuotasOrdenadas.map(cuota => {
+                        const estadoClase = cuota.estado === 'Pagada' ? 'pagada' : cuota.estado === 'Pendiente' ? 'pendiente' : 'vencida';
+                        return (
+                          <div key={cuota.id} className={`cuota-item ${estadoClase}`}>
+                            <div className="cuota-num">C{cuota.numero_cuota}</div>
+                            <div className="cuota-detalles">
+                              <span className="c-monto">${cuota.monto_cuota}</span>
+                              <span className="c-estado">{cuota.estado}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {/* HISTORIAL DE PAGOS REALIZADOS */}
+                {pagosSeguros.length > 0 && (
+                  <div className="pagos-seccion">
+                    <h4>Historial de cobros:</h4>
+                    <ul className="lista-pagos-chica">
+                      {pagosSeguros.map(pago => (
+                        <li key={pago.id}>
+                          <strong>+ ${pago.monto_pagado}</strong> el {new Date(pago.fecha_pago).toLocaleDateString('es-AR')}
+                          {pago.observaciones && <span className="nota-pago"><MessageSquare size={12}/> {pago.observaciones}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
               </div>
             );
           })}

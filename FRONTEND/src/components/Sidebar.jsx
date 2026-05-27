@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { Home, Users, DollarSign, CreditCard, FileText, Calculator, LogOut, Archive } from 'lucide-react';
 import '../styles/Sidebar.css';
+
 const Sidebar = () => {
 
   // Función para cerrar sesión
