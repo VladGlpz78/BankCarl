@@ -1,12 +1,10 @@
 const supabase = require('../config/supabase');
 
-const crearPrestamo = async (req, res) => {
+const crearNuevoPrestamo = async (req, res) => {
     try {
-        // 1. Recibimos los datos del frontend (estos nombres coinciden exacto con tu Prestamos.jsx)
         const { cliente_id, monto, tasa_interes, cuotas, frecuencia, fecha_inicio } = req.body;
 
-       // --- 🛡️ REGLA DE NEGOCIO: CONTROL DE RIESGO ---
-        // Vamos a la tabla de préstamos y buscamos si este cliente tiene uno "Activo"
+        // --- 🛡️ REGLA DE NEGOCIO: CONTROL DE RIESGO ---
         const { data: prestamosActivos, error: errorBusqueda } = await supabase
             .from('prestamos')
             .select('id')
@@ -14,11 +12,10 @@ const crearPrestamo = async (req, res) => {
             .eq('estado', 'Activo'); 
 
         if (errorBusqueda) {
-            console.error(errorBusqueda); // Esto nos avisa en la consola si hay un error real
-            return res.status(500).json({ éxito: false, error: 'Error al verificar el historial del cliente.' });
+            console.error(errorBusqueda);
+            return res.status(500).json({ éxito: false, error: 'Error al verificar el historial.' });
         }
 
-        // Si la lista de préstamos activos tiene al menos 1 elemento, lo rebotamos
         if (prestamosActivos && prestamosActivos.length > 0) {
             return res.status(400).json({ 
                 éxito: false, 
@@ -27,22 +24,32 @@ const crearPrestamo = async (req, res) => {
         }
         // --- FIN DE LA REGLA DE NEGOCIO ---
         
-
-        // Aseguramos que los valores sean números para la matemática (buenas prácticas en JS)
         const monto_num = parseFloat(monto);
         const tasa_num = parseFloat(tasa_interes);
         const cuotas_num = parseInt(cuotas);
 
-       // 2. Cálculos matemáticos limpios (Lógica de redondeo para evitar monedas)
         const interes_teorico = monto_num * (tasa_num / 100);
         const monto_total_teorico = monto_num + interes_teorico;
         
-        // Redondeamos la cuota hacia arriba a los $100 pesos más cercanos
         const monto_por_cuota = Math.ceil((monto_total_teorico / cuotas_num) / 100) * 100;
-        
-        // Como redondeamos la cuota, el monto total real aumenta unos pesitos a nuestro favor
         const monto_total = monto_por_cuota * cuotas_num;
-        // 3. Insertamos el préstamo mapeando a los nombres de tus columnas en la BD
+
+        // 👇 NUEVO: CALCULAR LA FECHA DE FIN EXACTA ANTES DE GUARDAR
+        let fechaCalculada = new Date(fecha_inicio);
+        fechaCalculada.setMinutes(fechaCalculada.getMinutes() + fechaCalculada.getTimezoneOffset()); // Ajuste de zona horaria
+
+        if (frecuencia === 'Semanal') {
+            fechaCalculada.setDate(fechaCalculada.getDate() + (7 * cuotas_num));
+        } else if (frecuencia === 'Mensual') {
+            fechaCalculada.setMonth(fechaCalculada.getMonth() + cuotas_num);
+        } else if (frecuencia === 'Diario') {
+            fechaCalculada.setDate(fechaCalculada.getDate() + cuotas_num);
+        }
+
+        // Convertimos la fecha al formato YYYY-MM-DD que le gusta a Supabase
+        const fecha_fin_formateada = fechaCalculada.toISOString().split('T')[0];
+
+        // 3. Insertamos el préstamo con la fecha final real
         const { data: prestamoData, error: prestamoError } = await supabase
             .from('prestamos')
             .insert([{
@@ -51,9 +58,9 @@ const crearPrestamo = async (req, res) => {
                 tasa_interes: tasa_num,
                 monto_total: monto_total,
                 frecuencia_pago: frecuencia,
-                porcentaje_punitorio: 5, // Asignamos 5% por defecto ya que no viene del front
+                porcentaje_punitorio: 5, 
                 fecha_inicio: fecha_inicio,
-                fecha_fin: fecha_fin_formateada,
+                fecha_fin: fecha_fin_formateada, // AHORA SÍ TIENE LA FECHA EXACTA
                 estado: 'Activo'
             }])
             .select();
@@ -125,4 +132,4 @@ const eliminarPrestamo = async (req, res) => {
     }
 };
 
-module.exports = { crearPrestamo, eliminarPrestamo };
+module.exports = { crearNuevoPrestamo, eliminarPrestamo };

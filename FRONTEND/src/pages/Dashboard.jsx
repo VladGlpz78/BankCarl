@@ -161,7 +161,6 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-
           <div className="link-simulador-section">
             <h3><LinkIcon size={22} /> Compartir Simulador Público</h3>
             <p>Pasale este link a tus clientes para que coticen sus préstamos ellos mismos:</p>

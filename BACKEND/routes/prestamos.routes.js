@@ -1,13 +1,19 @@
 const express = require('express');
 const router = express.Router();
 
-// 👇 1. ASEGURATE DE IMPORTAR 'eliminarPrestamo' AQUÍ
-const { crearPrestamo, obtenerPrestamos, eliminarPrestamo } = require('../controllers/prestamos.controller');
+// Importamos el guardia de seguridad
 const { verificarToken } = require('../middlewares/auth');
 
-// ... (tus otras rutas que ya tenías, como el POST o el GET)
+// Importamos LAS MISMAS funciones que existen en tu controlador
+const { 
+    crearNuevoPrestamo, // <-- Ahora los nombres coinciden
+    eliminarPrestamo 
+} = require('../controllers/prestamos.controller');
 
-// 👇 2. ASEGURATE DE QUE ESTA LÍNEA ESTÉ ANTES DEL module.exports
+// 1. RUTA PARA CREAR UN PRÉSTAMO
+router.post('/', verificarToken, crearNuevoPrestamo); // <-- Le pasamos la correcta
+
+// 2. RUTA PARA BORRAR UN PRÉSTAMO (La del tachito)
 router.delete('/:id', verificarToken, eliminarPrestamo);
 
 module.exports = router;
