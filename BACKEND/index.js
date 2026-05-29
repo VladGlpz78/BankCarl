@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 // 🛡️ Middlewares globales - CORS ESTRICTO
 const corsOptions = {
   // 👇 ACÁ REEMPLAZÁ CON TU LINK REAL DE VERCEL
-  origin: ['bank-carl.vercel.app', 'http://localhost:5173', 'http://10.23.177.216:5173'], 
+  origin: ['https://bank-carl.vercel.app', 'http://localhost:5173', 'http://10.23.177.216:5173'], 
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
