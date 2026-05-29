@@ -9,14 +9,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 🛡️ Middlewares globales - CORS ESTRICTO
+// 🛡️ Middlewares globales - CORS ESTRICTO Y BLINDADO
 const corsOptions = {
-  // 👇 ACÁ REEMPLAZÁ CON TU LINK REAL DE VERCEL
-  origin: ['https://bank-carl.vercel.app', 'http://localhost:5173', 'http://10.23.177.216:5173'], 
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  origin: [
+    'https://bank-carl.vercel.app', // Tu Vercel oficial (¡Sin barra al final!)
+    'http://localhost:5173',        // Tu compu local
+    'http://localhost:3000'         // Por si acaso
+  ], 
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
+
 app.use(cors(corsOptions)); 
-app.use(express.json()); 
+app.use(express.json());
 
 // Importamos las rutas
 const rutasClientes = require('./routes/clientes.routes');
