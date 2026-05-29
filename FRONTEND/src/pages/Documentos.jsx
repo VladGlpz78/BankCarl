@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { UploadCloud, FileText, Eye } from 'lucide-react';
+import { UploadCloud, FileText, Eye, Trash2 } from 'lucide-react'; // 👈 Sumamos Trash2
+import supabase from '../config/supabase';
 import '../styles/Documentos.css';
 
 const Documentos = () => {
@@ -60,33 +61,91 @@ const Documentos = () => {
 
     setSubiendo(true);
 
-    const formData = new FormData();
-    formData.append('cliente_id', clienteId);
-    formData.append('tipo_documento', tipoDocumento);
-    formData.append('foto', archivo);
-
     try {
+      const nombreArchivo = `${clienteId}_${Date.now()}_${archivo.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('clientes-archivos')
+        .upload(nombreArchivo, archivo);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('clientes-archivos')
+        .getPublicUrl(nombreArchivo);
+
+      const urlFoto = urlData.publicUrl;
+
       const res = await fetch('http://localhost:3000/api/documentos', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }, // 👈 Pasaporte para subir archivos
-        body: formData,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          cliente_id: clienteId,
+          tipo_documento: tipoDocumento,
+          url_archivo: urlFoto
+        }),
       });
 
       const data = await res.json();
 
       if (data.éxito) {
-        alert('¡Documento subido con éxito!');
+        alert('¡Documento subido y guardado con éxito!');
         setArchivo(null);
         document.getElementById('file-input').value = '';
         buscarDocumentosCliente(clienteId);
       } else {
-        alert('Hubo un problema: ' + data.error);
+        alert('Hubo un problema en la base de datos: ' + data.error);
       }
     } catch (error) {
-      console.error(error);
-      alert('Error de conexión con el servidor.');
+      console.error("Error en el proceso:", error);
+      alert('Error al subir el archivo. Revisá la consola.');
     } finally {
       setSubiendo(false);
+    }
+  };
+
+  // 🚨 NUEVA FUNCIÓN: BORRAR DOCUMENTO DE STORAGE Y BASE DE DATOS
+  const handleEliminarDocumento = async (doc) => {
+    const confirmar = window.confirm(`¿Estás seguro que querés eliminar este documento (${doc.tipo_documento})? Esta acción no se puede deshacer.`);
+    if (!confirmar) return;
+
+    try {
+      // 1. Extraemos el nombre puro del archivo desde la URL de Supabase
+      // Ejemplo: "https://.../clientes-archivos/id_123_dni.jpg" -> nos quedamos con "id_123_dni.jpg"
+      const nombreArchivo = doc.url_archivo.split('/').pop();
+
+      // 2. Lo borramos del Storage de Supabase
+      const { error: storageError } = await supabase.storage
+        .from('clientes-archivos')
+        .remove([nombreArchivo]);
+
+      if (storageError) {
+        console.error("Error al borrar del Storage:", storageError);
+        // Continuamos de todos modos para no dejar el registro huérfano en la BD
+      }
+
+      // 3. Lo borramos de la base de datos llamando a tu API Backend
+      const res = await fetch(`http://localhost:3000/api/documentos/${doc.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await res.json();
+
+      if (data.éxito) {
+        alert('Documento eliminado correctamente.');
+        buscarDocumentosCliente(clienteId); // Recargamos la lista en pantalla
+      } else {
+        alert('Error al eliminar de la base de datos: ' + data.error);
+      }
+    } catch (error) {
+      console.error("Error al intentar eliminar:", error);
+      alert('Error de conexión al intentar borrar el archivo.');
     }
   };
 
@@ -145,9 +204,37 @@ const Documentos = () => {
                     <FileText size={20} color="#666" />
                     <span>{doc.tipo_documento}</span>
                   </div>
-                  <a href={doc.url_archivo} target="_blank" rel="noopener noreferrer" className="btn-ver-archivo">
-                    <Eye size={16} /> Ver Archivo
-                  </a>
+                  
+                  {/* CONTENEDOR DE ACCIONES (VER Y ELIMINAR) */}
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <a href={doc.url_archivo} target="_blank" rel="noopener noreferrer" className="btn-ver-archivo">
+                      <Eye size={16} /> Ver
+                    </a>
+                    
+                    {/* Botón de borrado estilizado rápido */}
+                    <button 
+                      onClick={() => handleEliminarDocumento(doc)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        padding: '6px 12px',
+                        backgroundColor: '#fee2e2',
+                        color: '#ef4444',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#fca5a5'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#fee2e2'}
+                    >
+                      <Trash2 size={16} /> Borrar
+                    </button>
+                  </div>
+
                 </div>
               ))}
             </div>

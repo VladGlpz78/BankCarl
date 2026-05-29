@@ -142,4 +142,32 @@
     background-color: transparent;
     color: #dc3545;
   }
+
+  /* --- DISEÑO PARA CELULARES (Bottom Bar) --- */
+@media (max-width: 768px) {
+  /* ... (dejá todo lo que ya tenías acá arriba igual) ... */
+
+  /* TRUCO MÓVIL: Ocultamos las opciones secundarias en la barra inferior para que no explote */
+  
+  /* Ocultamos: Documentos, Simulador y Caja */
+  .sidebar-menu li:nth-child(5),
+  .sidebar-menu li:nth-child(6),
+  .sidebar-menu li:nth-child(7) {
+    display: none;
+  }
+
+  /* Ocultamos el texto de los botones en el celular para hacer más espacio, 
+     solo dejamos los íconos */
+  .nav-item span,
+  .btn-logout span {
+    display: none;
+  }
+
+  /* Centramos bien los íconos que quedan */
+  .nav-item, .btn-logout {
+    padding: 15px;
+    align-items: center;
+    justify-content: center;
+  }
+}
 }

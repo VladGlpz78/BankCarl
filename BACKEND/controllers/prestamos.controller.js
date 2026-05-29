@@ -4,7 +4,6 @@ const crearNuevoPrestamo = async (req, res) => {
     try {
         const { cliente_id, monto, tasa_interes, cuotas, frecuencia, fecha_inicio } = req.body;
 
-        // --- 🛡️ REGLA DE NEGOCIO: CONTROL DE RIESGO ---
         const { data: prestamosActivos, error: errorBusqueda } = await supabase
             .from('prestamos')
             .select('id')
@@ -22,7 +21,6 @@ const crearNuevoPrestamo = async (req, res) => {
                 error: 'Operación denegada: El cliente todavía tiene un préstamo activo. Debe cancelarlo en su totalidad antes de solicitar uno nuevo.' 
             });
         }
-        // --- FIN DE LA REGLA DE NEGOCIO ---
         
         const monto_num = parseFloat(monto);
         const tasa_num = parseFloat(tasa_interes);
@@ -34,7 +32,6 @@ const crearNuevoPrestamo = async (req, res) => {
         const monto_por_cuota = Math.ceil((monto_total_teorico / cuotas_num) / 100) * 100;
         const monto_total = monto_por_cuota * cuotas_num;
 
-        // 👇 NUEVO: CALCULAR LA FECHA DE FIN EXACTA ANTES DE GUARDAR
         let fechaCalculada = new Date(fecha_inicio);
         fechaCalculada.setMinutes(fechaCalculada.getMinutes() + fechaCalculada.getTimezoneOffset()); // Ajuste de zona horaria
 
@@ -46,10 +43,8 @@ const crearNuevoPrestamo = async (req, res) => {
             fechaCalculada.setDate(fechaCalculada.getDate() + cuotas_num);
         }
 
-        // Convertimos la fecha al formato YYYY-MM-DD que le gusta a Supabase
         const fecha_fin_formateada = fechaCalculada.toISOString().split('T')[0];
 
-        // 3. Insertamos el préstamo con la fecha final real
         const { data: prestamoData, error: prestamoError } = await supabase
             .from('prestamos')
             .insert([{
@@ -60,7 +55,7 @@ const crearNuevoPrestamo = async (req, res) => {
                 frecuencia_pago: frecuencia,
                 porcentaje_punitorio: 5, 
                 fecha_inicio: fecha_inicio,
-                fecha_fin: fecha_fin_formateada, // AHORA SÍ TIENE LA FECHA EXACTA
+                fecha_fin: fecha_fin_formateada, 
                 estado: 'Activo'
             }])
             .select();
@@ -92,7 +87,6 @@ const crearNuevoPrestamo = async (req, res) => {
             });
         }
 
-        // 5. Insertamos las cuotas
         const { error: cuotasError } = await supabase
             .from('cuotas')
             .insert(cuotasArray);

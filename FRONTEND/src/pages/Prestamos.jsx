@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Calculator } from 'lucide-react';
 
+  const formatearParaInput = (valor) => {
+    if (!valor) return '';
+    const numeroLimpio = valor.toString().replace(/\D/g, '');
+    return Number(numeroLimpio).toLocaleString('es-AR');
+  };
+
 const Prestamos = () => {
   const [clientes, setClientes] = useState([]);
   const [formData, setFormData] = useState({
@@ -29,15 +35,14 @@ const Prestamos = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'frecuencia') {
-      // Le ponemos un valor sugerido lógico si cambia la modalidad (4 semanas o 1 mes)
-      setFormData({ ...formData, frecuencia: value, plazo: value === 'Semanal' ? '4' : '1' });
+    if (name === 'monto') {
+      const valorLimpio = value.replace(/\./g, '');
+      setFormData({ ...formData, monto: valorLimpio });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  // --- LÓGICA DE LA TABLA (100% Sin Límites) ---
   const montoNum = parseFloat(formData.monto) || 0;
   // Si el usuario borra el número, calculamos sobre 1 para que no se rompa la matemática
   const plazoNum = parseInt(formData.plazo) || 1; 
@@ -110,11 +115,23 @@ const Prestamos = () => {
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Monto Principal ($)</label>
-              <input type="number" name="monto" value={formData.monto} onChange={handleChange} required min="1" className="form-input" placeholder="Ej: 100000" />
-            </div>
-
+            <input 
+          type="text" 
+          name="monto" 
+          value={formatearParaInput(formData.monto)} 
+          onChange={handleChange} 
+          placeholder="Ej: 1.000.000" 
+          style={{ 
+          width: '100%', 
+          padding: '10px 12px', /* Esto le da la altura y el "gordor" */
+          fontSize: '16px', 
+          border: '1px solid #ccc', /* El color de la línea */
+          borderRadius: '6px', /* Los bordes redondeados */
+          boxSizing: 'border-box', /* Clave para que no se desborde */
+          outline: 'none'
+          }}
+          />
+            
             <div style={{ display: 'flex', gap: '15px' }}>
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Modalidad</label>
