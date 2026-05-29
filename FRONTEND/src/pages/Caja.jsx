@@ -10,7 +10,7 @@ const Caja = () => {
 
   const cargarHistorial = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/pagos/historial', {
+      const res = await fetch('https://bankcarl.onrender.com/api/pagos/historial', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -37,7 +37,7 @@ const Caja = () => {
     if (!confirmar) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/prestamos/${id}`, {
+      const res = await fetch(`https://bankcarl.onrender.com/api/prestamos/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

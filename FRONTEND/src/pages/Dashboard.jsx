@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   const cargarDatos = async () => {
     try {
-      const resStats = await fetch('http://localhost:3000/api/dashboard', {
+      const resStats = await fetch('https://bankcarl.onrender.com/api/dashboard', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const dataStats = await resStats.json();
@@ -36,7 +36,7 @@ const Dashboard = () => {
         setMorosos(dataStats.morosos); // Guardamos la lista de morosos
       }
 
-      const resClientes = await fetch('http://localhost:3000/api/clientes', {
+      const resClientes = await fetch('https://bankcarl.onrender.com/api/clientes', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const dataClientes = await resClientes.json();
@@ -64,7 +64,7 @@ const Dashboard = () => {
 
   const handleGuardarCambios = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/clientes/${id}`, {
+      const res = await fetch(`https://bankcarl.onrender.com/api/clientes/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(editFormData)
@@ -79,7 +79,7 @@ const Dashboard = () => {
     const confirmar = window.confirm(`¿Seguro que querés eliminar a ${apellido}, ${nombre}?`);
     if (!confirmar) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/clientes/${id}`, { 
+      const res = await fetch(`https://bankcarl.onrender.com/api/clientes/${id}`, { 
         method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } 
       });
       const data = await res.json();

@@ -23,7 +23,7 @@ const Clientes = () => {
     setCargando(true);
 
     try {
-      const res = await fetch('http://localhost:3000/api/clientes', {
+      const res = await fetch('https://bankcarl.onrender.com/api/clientes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

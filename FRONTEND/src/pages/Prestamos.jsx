@@ -23,7 +23,7 @@ const Prestamos = () => {
   useEffect(() => {
     const cargarClientes = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/clientes', {
+        const res = await fetch('https://bankcarl.onrender.com/api/clientes', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -61,7 +61,7 @@ const Prestamos = () => {
     setCargando(true);
 
     try {
-      const res = await fetch('http://localhost:3000/api/prestamos', {
+      const res = await fetch('https://bankcarl.onrender.com/api/prestamos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

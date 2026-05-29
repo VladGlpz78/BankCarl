@@ -16,7 +16,7 @@ const Documentos = () => {
   useEffect(() => {
     const cargarClientes = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/clientes', {
+        const res = await fetch('https://bankcarl.onrender.com/api/clientes', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -34,7 +34,7 @@ const Documentos = () => {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/api/documentos/${id}`, {
+      const res = await fetch(`https://bankcarl.onrender.com/api/documentos/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -78,7 +78,7 @@ const Documentos = () => {
 
       const urlFoto = urlData.publicUrl;
 
-      const res = await fetch('http://localhost:3000/api/documentos', {
+      const res = await fetch('https://bankcarl.onrender.com/api/documentos', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ const Documentos = () => {
       }
 
       // 3. Lo borramos de la base de datos llamando a tu API Backend
-      const res = await fetch(`http://localhost:3000/api/documentos/${doc.id}`, {
+      const res = await fetch(`https://bankcarl.onrender.com/api/documentos/${doc.id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

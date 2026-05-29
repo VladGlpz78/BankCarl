@@ -11,7 +11,7 @@ const Pagos = () => {
   useEffect(() => {
     const cargarClientes = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/clientes', {
+        const res = await fetch('https://bankcarl.onrender.com/api/clientes', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -33,7 +33,7 @@ const Pagos = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/pagos/pendientes/${id}`, {
+      const res = await fetch(`https://bankcarl.onrender.com/api/pagos/pendientes/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -55,7 +55,7 @@ const Pagos = () => {
     const nota = window.prompt("¿Querés dejar alguna observación para este cobro? (Opcional)", "");
 
     try {
-      const res = await fetch('http://localhost:3000/api/pagos', {
+      const res = await fetch('https://bankcarl.onrender.com/api/pagos', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
