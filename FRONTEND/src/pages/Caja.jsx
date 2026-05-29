@@ -122,7 +122,9 @@ const Caja = () => {
                         <Trash2 size={18} />
                       </button>
                     </div>
-                    <span className="monto-total" style={{ marginTop: '5px' }}>A devolver: ${prestamo.monto_total || 0}</span>
+                    <span className="monto-total" style={{ marginTop: '5px' }}>
+                    A devolver: $ {Number(prestamo.monto_total || 0).toLocaleString('es-AR')}
+                    </span>
                   </div>
                 </div>
 
@@ -137,7 +139,7 @@ const Caja = () => {
                           <div key={cuota.id} className={`cuota-item ${estadoClase}`}>
                             <div className="cuota-num">C{cuota.numero_cuota}</div>
                             <div className="cuota-detalles">
-                              <span className="c-monto">${cuota.monto_cuota}</span>
+                              <span className="c-monto">$ {Number(cuota.monto_cuota).toLocaleString('es-AR')}</span>
                               <span className="c-estado">{cuota.estado}</span>
                             </div>
                           </div>
@@ -154,7 +156,7 @@ const Caja = () => {
                     <ul className="lista-pagos-chica">
                       {pagosSeguros.map(pago => (
                         <li key={pago.id}>
-                          <strong>+ ${pago.monto_pagado}</strong> el {new Date(pago.fecha_pago).toLocaleDateString('es-AR')}
+                          <strong>+ $ {Number(pago.monto_pagado).toLocaleString('es-AR')}</strong>el {new Date(pago.fecha_pago).toLocaleDateString('es-AR')}
                           {pago.observaciones && <span className="nota-pago"><MessageSquare size={12}/> {pago.observaciones}</span>}
                         </li>
                       ))}

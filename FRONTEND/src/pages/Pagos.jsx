@@ -48,7 +48,7 @@ const Pagos = () => {
   };
 
   const handlePagar = async (cuota) => {
-    const confirmar = window.confirm(`¿Confirmás el pago de $${cuota.monto_cuota} de la cuota ${cuota.numero_cuota}?`);
+  const confirmar = window.confirm(`¿Confirmás el pago de $${Number(cuota.monto_cuota).toLocaleString('es-AR')} de la cuota ${cuota.numero_cuota}?`);
     if (!confirmar) return;
 
     // Pedimos la observación con un cartelito (si le da a cancelar o lo deja vacío, se guarda como null)
@@ -116,7 +116,7 @@ const Pagos = () => {
                     <strong>Cuota {cuota.numero_cuota}</strong>
                     {estaVencida && <span className="badge-vencida">¡ATRASADA!</span>}
                   </div>
-                  <span className="cuota-monto">$ {cuota.monto_cuota}</span>
+                  <span className="cuota-monto">$ {Number(cuota.monto_cuota).toLocaleString('es-AR')}</span>
                   <span className={`cuota-vencimiento ${estaVencida ? 'texto-rojo' : ''}`}>
                     Vence: {cuota.fecha_vencimiento.split('-').reverse().join('/')}
                   </span>
