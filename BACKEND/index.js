@@ -8,7 +8,6 @@ const supabase = require('./config/supabase');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🛡️ Middlewares globales - CORS ESTRICTO
 // 🛡️ Middlewares globales - CORS ESTRICTO Y BLINDADO
 const corsOptions = {
   origin: [

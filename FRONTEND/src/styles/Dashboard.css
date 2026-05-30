@@ -280,6 +280,31 @@
    MEDIA QUERY: RESPONSIVE PARA CELULARES (Pantallas menores a 768px)
    ========================================================================== */
 @media (max-width: 768px) {
+
+/* --- 👇 NUEVO ARREGLO PARA QUE NO REBALSE TEXTO EN CELU 👇 --- */
+  .dashboard-container {
+    padding: 10px; /* Dale aire a los costados */
+    overflow-x: hidden; /* Prohibido el scroll horizontal */
+    box-sizing: border-box;
+  }
+
+  .card {
+    width: 100%; /* Que ocupe todo el ancho */
+    min-width: unset; /* Sacamos el mínimo que empuja */
+    box-sizing: border-box;
+    /* Esto es magia: fuerza a textos largos sin espacios (mails) a cortarse */
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-all; /* Si es extremadamente largo, lo corta igual */
+    word-break: break-word;
+  }
+
+  .dashboard-cards {
+    flex-direction: column; /* Tarjetas apiladas una abajo de otra */
+    gap: 15px;
+  }
+  
   .dashboard-cards {
     flex-direction: column; /* Tarjetas apiladas una abajo de otra */
     gap: 15px;

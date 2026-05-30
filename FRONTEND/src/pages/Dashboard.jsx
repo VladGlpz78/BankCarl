@@ -162,14 +162,37 @@ const Dashboard = () => {
             </div>
           )}
           <div className="link-simulador-section">
-            <h3><LinkIcon size={22} /> Compartir Simulador Público</h3>
-            <p>Pasale este link a tus clientes para que coticen sus préstamos ellos mismos:</p>
-            <div className="link-box">
-              <input type="text" readOnly value={`${window.location.origin}/simulador`} className="form-input" />
-              <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/simulador`); alert('¡Link copiado!'); }} className="btn-accion guardar"><Copy size={20} /></button>
-              <a href="/simulador" target="_blank" rel="noopener noreferrer" className="btn-accion editar"><ExternalLink size={20} /></a>
-            </div>
-          </div>
+  <h3><LinkIcon size={22} /> Compartir Simulador Público</h3>
+  <p>Pasale este link a tus clientes para que coticen sus préstamos ellos mismos:</p>
+  <div className="link-box">
+    {/* 👇 ACTUALIZADO: Link fijo 👇 */}
+    <input 
+      type="text" 
+      readOnly 
+      value="https://simulador-bankcarl-wxdy.vercel.app" 
+      className="form-input" 
+    />
+    {/* 👇 ACTUALIZADO: Clipboard también con link fijo 👇 */}
+    <button 
+      onClick={() => { 
+        navigator.clipboard.writeText("https://simulador-bankcarl-wxdy.vercel.app"); 
+        alert('¡Link copiado!'); 
+      }} 
+      className="btn-accion guardar"
+    >
+      <Copy size={20} />
+    </button>
+    {/* 👇 ACTUALIZADO: href fijo 👇 */}
+    <a 
+      href="https://simulador-bankcarl-wxdy.vercel.app" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      className="btn-accion editar"
+    >
+      <ExternalLink size={20} />
+    </a>
+  </div>
+</div>
 
           <div className="crud-section">
             <h2>Administración de Clientes</h2>
