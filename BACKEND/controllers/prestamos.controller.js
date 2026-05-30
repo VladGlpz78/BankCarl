@@ -4,6 +4,9 @@ const crearNuevoPrestamo = async (req, res) => {
     try {
         const { cliente_id, monto, tasa_interes, cuotas, frecuencia, fecha_inicio } = req.body;
 
+        // 🌟 RECOLECTAMOS EL ID DEL SOCIO: El middleware "verificarToken" guardó esto en req.user
+        const usuarioId = req.user.id;
+
         const { data: prestamosActivos, error: errorBusqueda } = await supabase
             .from('prestamos')
             .select('id')
@@ -45,6 +48,7 @@ const crearNuevoPrestamo = async (req, res) => {
 
         const fecha_fin_formateada = fechaCalculada.toISOString().split('T')[0];
 
+        // 🌟 MODIFICADO: Guardamos la columna 'creado_por' con el ID del socio logueado
         const { data: prestamoData, error: prestamoError } = await supabase
             .from('prestamos')
             .insert([{
@@ -56,7 +60,8 @@ const crearNuevoPrestamo = async (req, res) => {
                 porcentaje_punitorio: 5, 
                 fecha_inicio: fecha_inicio,
                 fecha_fin: fecha_fin_formateada, 
-                estado: 'Activo'
+                estado: 'Activo',
+                creado_por: usuarioId // 👈 ¡Acá se guarda el dueño del préstamo!
             }])
             .select();
 
@@ -109,14 +114,27 @@ const crearNuevoPrestamo = async (req, res) => {
 const eliminarPrestamo = async (req, res) => {
     try {
         const { id } = req.params;
+        const usuarioId = req.user.id; // ID del socio que intenta borrar
 
-        const { error } = await supabase
+        // 🌟 BLINDADO: Agregamos el filtro .eq('creado_por', usuarioId)
+        // Esto evita que el Socio B pueda borrar un préstamo perteneciente al Socio A mediante la API.
+        const { data, error } = await supabase
             .from('prestamos')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('creado_por', usuarioId) // 👈 Solo borra si coincide que él lo creó
+            .select();
 
         if (error) {
             return res.status(400).json({ éxito: false, error: error.message });
+        }
+
+        // Si data viene vacío significa que el registro no existía o que pertenecía a otro socio
+        if (!data || data.length === 0) {
+            return res.status(403).json({ 
+                éxito: false, 
+                error: 'Acceso denegada: No podés eliminar este préstamo porque fue registrado por otro socio.' 
+            });
         }
 
         res.status(200).json({ éxito: true, mensaje: 'Préstamo e historial eliminados correctamente' });
