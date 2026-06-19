@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Calculator } from 'lucide-react';
 
-  const formatearParaInput = (valor) => {
-    if (!valor) return '';
-    const numeroLimpio = valor.toString().replace(/\D/g, '');
-    return Number(numeroLimpio).toLocaleString('es-AR');
-  };
+const formatearParaInput = (valor) => {
+  if (!valor) return '';
+  const numeroLimpio = valor.toString().replace(/\D/g, '');
+  return Number(numeroLimpio).toLocaleString('es-AR');
+};
 
 const Prestamos = () => {
   const [clientes, setClientes] = useState([]);
+  
+  // 1. Agregamos tasa_interes al estado inicial (arranca vacío)
   const [formData, setFormData] = useState({
     cliente_id: '',
     monto: '',
+    tasa_interes: '', 
     frecuencia: 'Semanal', 
-    plazo: '4', // Valor inicial
+    plazo: '4', 
     fecha_inicio: new Date().toISOString().split('T')[0]
   });
   const [cargando, setCargando] = useState(false);
@@ -43,12 +46,13 @@ const Prestamos = () => {
     }
   };
 
+  // 2. Extraemos el número de la tasa de interés que escribió el usuario
   const montoNum = parseFloat(formData.monto) || 0;
-  // Si el usuario borra el número, calculamos sobre 1 para que no se rompa la matemática
   const plazoNum = parseInt(formData.plazo) || 1; 
+  const tasaNum = parseFloat(formData.tasa_interes) || 0; 
   
-  const porcentajeInteres = formData.frecuencia === 'Semanal' ? plazoNum * 4 : plazoNum * 16;
-  const montoInteres = montoNum * (porcentajeInteres / 100);
+  // 3. Calculamos la matemática usando esa tasa libre
+  const montoInteres = montoNum * (tasaNum / 100);
   const totalTeorico = montoNum + montoInteres;
   
   const cuotaRedondeada = Math.ceil((totalTeorico / plazoNum) / 100) * 100;
@@ -58,6 +62,8 @@ const Prestamos = () => {
     e.preventDefault();
     if (montoNum <= 0) return alert('Ingresá un monto válido');
     if (plazoNum <= 0) return alert('El plazo debe ser mayor a 0');
+    if (tasaNum <= 0) return alert('Ingresá una tasa de interés válida'); // Validación extra
+    
     setCargando(true);
 
     try {
@@ -70,7 +76,7 @@ const Prestamos = () => {
         body: JSON.stringify({
           cliente_id: formData.cliente_id,
           monto: montoNum,
-          tasa_interes: porcentajeInteres,
+          tasa_interes: tasaNum, // Mandamos la tasa libre al backend
           cuotas: plazoNum,
           frecuencia: formData.frecuencia, 
           fecha_inicio: formData.fecha_inicio
@@ -81,7 +87,8 @@ const Prestamos = () => {
       if (data.éxito) {
         const palabraPlazo = formData.frecuencia === 'Semanal' ? 'semanas' : 'meses';
         alert(`¡Préstamo generado! ${plazoNum} ${palabraPlazo} de $${cuotaRedondeada}`);
-        setFormData({ ...formData, monto: '', plazo: formData.frecuencia === 'Semanal' ? '4' : '1' });
+        // Limpiamos los campos después de crear
+        setFormData({ ...formData, monto: '', tasa_interes: '', plazo: formData.frecuencia === 'Semanal' ? '4' : '1' });
       } else {
         alert('Error: ' + data.error);
       }
@@ -103,7 +110,7 @@ const Prestamos = () => {
         
         <div style={{ flex: '1 1 350px', backgroundColor: 'white', padding: '25px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
+            <div className="form-group" style={{ marginBottom: '15px' }}>
               <label>Seleccionar Cliente</label>
               <select name="cliente_id" value={formData.cliente_id} onChange={handleChange} required className="form-input">
                 <option value="">-- Elegí un cliente --</option>
@@ -115,25 +122,28 @@ const Prestamos = () => {
               </select>
             </div>
 
-            <input 
-          type="text" 
-          name="monto" 
-          value={formatearParaInput(formData.monto)} 
-          onChange={handleChange} 
-          placeholder="Ej: 1.000.000" 
-          style={{ 
-          width: '100%', 
-          padding: '10px 12px', /* Esto le da la altura y el "gordor" */
-          fontSize: '16px', 
-          border: '1px solid #ccc', /* El color de la línea */
-          borderRadius: '6px', /* Los bordes redondeados */
-          boxSizing: 'border-box', /* Clave para que no se desborde */
-          outline: 'none'
-          }}
-          />
+            <div className="form-group" style={{ marginBottom: '15px' }}>
+              <label>Capital a prestar ($)</label>
+              <input 
+                type="text" 
+                name="monto" 
+                value={formatearParaInput(formData.monto)} 
+                onChange={handleChange} 
+                placeholder="Ej: 1.000.000" 
+                style={{ 
+                  width: '100%', 
+                  padding: '10px 12px',
+                  fontSize: '16px', 
+                  border: '1px solid #ccc',
+                  borderRadius: '6px',
+                  boxSizing: 'border-box',
+                  outline: 'none'
+                }}
+              />
+            </div>
             
-            <div style={{ display: 'flex', gap: '15px' }}>
-              <div className="form-group" style={{ flex: 1 }}>
+            <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '15px' }}>
+              <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
                 <label>Modalidad</label>
                 <select name="frecuencia" value={formData.frecuencia} onChange={handleChange} className="form-input">
                   <option value="Semanal">Semanal</option>
@@ -141,9 +151,8 @@ const Prestamos = () => {
                 </select>
               </div>
 
-              {/* 👇 ACÁ ESTÁ LA MAGIA: Ahora es un input libre */}
-              <div className="form-group" style={{ flex: 1 }}>
-                <label>Cant. de {formData.frecuencia === 'Semanal' ? 'Semanas' : 'Meses'}</label>
+              <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
+                <label>Plazo ({formData.frecuencia === 'Semanal' ? 'Semanas' : 'Meses'})</label>
                 <input 
                   type="number" 
                   name="plazo" 
@@ -155,21 +164,37 @@ const Prestamos = () => {
                   placeholder={`Ej: ${formData.frecuencia === 'Semanal' ? '4' : '1'}`}
                 />
               </div>
+
+              {/* 👇 NUEVO CASILLERO: Tasa de Interés Libre 👇 */}
+              <div className="form-group" style={{ flex: 1, minWidth: '100px' }}>
+                <label>Interés (%)</label>
+                <input 
+                  type="number" 
+                  name="tasa_interes" 
+                  value={formData.tasa_interes} 
+                  onChange={handleChange} 
+                  required 
+                  min="1"
+                  step="0.1" /* Permite decimales por si cobran 15.5% */
+                  className="form-input" 
+                  placeholder="Ej: 20"
+                />
+              </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ marginBottom: '15px' }}>
               <label>Fecha de Entrega del Efectivo</label>
               <input type="date" name="fecha_inicio" value={formData.fecha_inicio} onChange={handleChange} required className="form-input" />
             </div>
 
-            <button type="submit" className="btn-submit" disabled={cargando} style={{ marginTop: '15px', backgroundColor: '#28a745' }}>
+            <button type="submit" className="btn-submit" disabled={cargando} style={{ marginTop: '15px', backgroundColor: '#28a745', width: '100%', padding: '12px', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', cursor: 'pointer' }}>
               {cargando ? 'Generando...' : 'Aprobar Préstamo'}
             </button>
           </form>
         </div>
 
         {/* Tarjeta de Resumen */}
-        {montoNum > 0 && formData.plazo && (
+        {montoNum > 0 && formData.plazo && formData.tasa_interes && (
           <div style={{ flex: '1 1 250px', backgroundColor: '#0f172a', color: 'white', padding: '25px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24' }}>
               <Calculator size={20} /> Resumen del Plan
@@ -181,7 +206,7 @@ const Prestamos = () => {
             </div>
 
             <div style={{ borderBottom: '1px solid #334155', paddingBottom: '10px' }}>
-              <span style={{ fontSize: '13px', color: '#94a3b8' }}>Interés Total ({porcentajeInteres}%):</span>
+              <span style={{ fontSize: '13px', color: '#94a3b8' }}>Interés Total ({tasaNum}%):</span>
               <div style={{ fontSize: '18px' }}>+ $ {(totalReal - montoNum).toLocaleString('es-AR')}</div>
             </div>
 

@@ -65,7 +65,7 @@ const Pagos = () => {
           cuota_id: cuota.id,
           prestamo_id: cuota.prestamo_id,
           monto_pagado: cuota.monto_cuota,
-          observaciones: nota // 👈 Mandamos la nota al backend
+          observaciones: nota 
         })
       });
 
