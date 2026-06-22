@@ -4,8 +4,7 @@ const crearNuevoPrestamo = async (req, res) => {
     try {
         const { cliente_id, monto, tasa_interes, cuotas, frecuencia, fecha_inicio } = req.body;
 
-        // 🌟 RECOLECTAMOS EL ID DEL SOCIO: El middleware "verificarToken" guardó esto en req.user
-        const usuarioId = req.user.id;
+        const usuarioId = req.usuario?.id || req.user?.id;
 
         const { data: prestamosActivos, error: errorBusqueda } = await supabase
             .from('prestamos')
@@ -48,7 +47,6 @@ const crearNuevoPrestamo = async (req, res) => {
 
         const fecha_fin_formateada = fechaCalculada.toISOString().split('T')[0];
 
-        // 🌟 MODIFICADO: Guardamos la columna 'creado_por' con el ID del socio logueado
         const { data: prestamoData, error: prestamoError } = await supabase
             .from('prestamos')
             .insert([{
@@ -61,7 +59,7 @@ const crearNuevoPrestamo = async (req, res) => {
                 fecha_inicio: fecha_inicio,
                 fecha_fin: fecha_fin_formateada, 
                 estado: 'Activo',
-                creado_por: usuarioId // 👈 ¡Acá se guarda el dueño del préstamo!
+                creado_por: usuarioId 
             }])
             .select();
 
@@ -114,10 +112,8 @@ const crearNuevoPrestamo = async (req, res) => {
 const eliminarPrestamo = async (req, res) => {
     try {
         const { id } = req.params;
-        const usuarioId = req.user.id; // ID del socio que intenta borrar
+        const usuarioId = req.usuario?.id || req.user?.id;
 
-        // 🌟 BLINDADO: Agregamos el filtro .eq('creado_por', usuarioId)
-        // Esto evita que el Socio B pueda borrar un préstamo perteneciente al Socio A mediante la API.
         const { data, error } = await supabase
             .from('prestamos')
             .delete()
