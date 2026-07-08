@@ -69,8 +69,9 @@ const Clientes = () => {
           </div>
 
           <div className="form-group">
-            <label>DNI</label>
-            <input type="number" name="dni" value={formData.dni} onChange={handleChange} required className="form-input" placeholder="Sin puntos" />
+            {/* 👇 Sin 'required' y con aclaración visual 👇 */}
+            <label>DNI (Opcional)</label>
+            <input type="number" name="dni" value={formData.dni} onChange={handleChange} className="form-input" placeholder="Sin puntos" />
           </div>
 
           <div className="form-group">

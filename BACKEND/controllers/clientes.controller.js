@@ -2,18 +2,27 @@ const supabase = require('../config/supabase');
 
 const crearCliente = async (req, res) => {
     try {
-        // Sacamos los datos que nos envía el frontend (React)
-        const { nombre, apellido, dni, direccion_hogar, direccion_laboral, notas } = req.body;
+        const { nombre, apellido, dni, telefono, direccion, direccion_hogar, direccion_laboral, notas } = req.body;
 
-        // Le decimos a Supabase que inserte estos datos en la tabla 'clientes'
+        const dniFinal = dni ? dni : null;
+        
+        const direccionFinal = direccion || direccion_hogar || null;
+
         const { data, error } = await supabase
             .from('clientes')
             .insert([
-                { nombre, apellido, dni, direccion_hogar, direccion_laboral, notas }
+                { 
+                    nombre, 
+                    apellido, 
+                    dni: dniFinal, 
+                    telefono, 
+                    direccion_hogar: direccionFinal, 
+                    direccion_laboral, 
+                    notas 
+                }
             ])
-            .select(); // .select() hace que Supabase nos devuelva el registro recién creado
+            .select();
 
-        // Si hay un error (ej: DNI duplicado), frenamos todo
         if (error) {
             return res.status(400).json({ éxito: false, error: error.message });
         }
@@ -24,10 +33,8 @@ const crearCliente = async (req, res) => {
     } catch (error) {
         res.status(500).json({ éxito: false, error: 'Error interno del servidor' });
     }
-
 };
 
-// Función para traer todos los clientes
 const obtenerClientes = async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -45,15 +52,16 @@ const obtenerClientes = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN 3: ACTUALIZAR UN CLIENTE ---
 const actualizarCliente = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, apellido, dni, direccion_hogar, direccion_laboral, notas } = req.body;
+        const { nombre, apellido, dni, telefono, direccion_hogar, direccion_laboral, notas } = req.body;
+
+        const dniFinal = dni ? dni : null;
 
         const { data, error } = await supabase
             .from('clientes')
-            .update({ nombre, apellido, dni, direccion_hogar, direccion_laboral, notas })
+            .update({ nombre, apellido, dni: dniFinal, telefono, direccion_hogar, direccion_laboral, notas })
             .eq('id', id)
             .select();
 
@@ -65,7 +73,6 @@ const actualizarCliente = async (req, res) => {
     }
 };
 
-// --- FUNCIÓN 4: ELIMINAR UN CLIENTE ---
 const eliminarCliente = async (req, res) => {
     try {
         const { id } = req.params;
